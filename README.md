@@ -19,7 +19,7 @@ Two Python wrappers for *ssdeep* already exist -- might be used for reference:
 
 
 ### Contributors
-- Paul Chaignon &lt;paul.chaignon@gmail&gt;
+- Paul Chaignon &lt;paul.chaignon@gmail.com&gt;
 - Kirstie Failey &lt;klf9481@rit.edu&gt;
 - Andrea Siebert &lt;ans9281@rit.edu&gt;
 
