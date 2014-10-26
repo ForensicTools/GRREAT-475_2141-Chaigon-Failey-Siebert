@@ -13,7 +13,7 @@ The [AsciiDoc documentation](https://github.com/google/grr-doc) is hosted in a s
 
 ### Piecewise hashing in Python
 
-Two Python wrappers for *ssdeep* already exists:
+Two Python wrappers for *ssdeep* already exist -- might be used for reference:
 - [python-ssdeep](https://github.com/DinoTools/python-ssdeep) - LGPLv3
 - [pyssdeep](https://code.google.com/p/pyssdeep/) - BSD New
 
