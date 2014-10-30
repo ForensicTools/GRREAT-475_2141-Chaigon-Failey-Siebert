@@ -9,6 +9,7 @@ The user could later hash the contents again to determine what has been changed 
 ### GRR
 [GRR](https://github.com/google/grr) (for GRR Rapid Response) is an incident response framework focused on remote live forensics.
 The [AsciiDoc documentation](https://github.com/google/grr-doc) is hosted in a separate repository.
+GRR uses the [Google Python Style conventions](https://google-styleguide.googlecode.com/svn/trunk/pyguide.html).
 
 
 ### Piecewise hashing in Python
