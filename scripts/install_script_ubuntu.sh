@@ -144,6 +144,10 @@ run_cmd_confirm sudo pip install psutil --upgrade
 header "Installing Selenium test framework for Tests"
 run_cmd_confirm sudo easy_install selenium
 
+header "Installing python-ssdeep via pip"
+run_cmd_confirm sudo apt-get install libfuzzy-dev
+run_cmd_confirm sudo pip install ssdeep
+
 
 header "Checking Django version is > 1.4 and fixing up"
 # We need 1.4, 12.04 ships with 1.3
