@@ -15,8 +15,7 @@ GRR uses the [Google Python Style conventions](https://google-styleguide.googlec
 
 
 ### Piecewise hashing in Python
-
-Two Python wrappers for *ssdeep* already exist -- might be used for reference:
+Two Python wrappers for *ssdeep* already exist -- used for reference:
 - [python-ssdeep](https://github.com/DinoTools/python-ssdeep) - LGPLv3
 - [pyssdeep](https://code.google.com/p/pyssdeep/) - BSD New
 
