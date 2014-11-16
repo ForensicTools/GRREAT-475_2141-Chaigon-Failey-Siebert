@@ -20,12 +20,6 @@ from grr.lib.hunts import implementation
 from grr.lib.hunts import output_plugins
 
 
-config_lib.DEFINE_string("AdminUI.new_hunt_wizard.default_output_plugin",
-                         None,
-                         "Output plugin that will be added by default in the "
-                         "'New Hunt' wizard output plugins selection page.")
-
-
 class HuntArgsParser(object):
   """A utility class for parsing the hunt parameters."""
 
@@ -152,7 +146,7 @@ class HuntFlowForm(flow_management.SemanticProtoFlowForm):
 {% endif %}
 <legend>Hunt Parameters
   <a href="/help/user_manual.html#hunt-parameters" target="_blank">
-  <i class="icon-question-sign"></i></a>
+  <i class="glyphicon glyphicon-question-sign"></i></a>
 </legend>
 {{this.hunt_params_form|safe}}
 
@@ -247,7 +241,7 @@ class HuntConfigureOutputPlugins(forms.MultiFormRenderer):
 class ClientLabelNameFormRenderer(forms.TypeDescriptorFormRenderer):
   """A renderer for AFF4 object label name."""
 
-  layout_template = """<div class="control-group">
+  layout_template = """<div class="form-group">
 """ + forms.TypeDescriptorFormRenderer.default_description_view + """
 <div class="controls">
 
@@ -391,7 +385,7 @@ class HuntInformation(renderers.TemplateRenderer):
   ajax_template = renderers.Template("""
   <h3>Hunt Parameters
     <a href="/help/user_manual.html#hunt-parameters" target="_blank">
-    <i class="icon-question-sign"></i></a>
+    <i class="glyphicon glyphicon-question-sign"></i></a>
   </h3>
   {{this.rendered_hunt_runner_args|safe}}
 

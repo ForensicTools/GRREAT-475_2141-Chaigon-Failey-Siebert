@@ -2,6 +2,7 @@
 """Data master specific classes."""
 
 
+import socket
 import threading
 import urlparse
 
@@ -53,7 +54,8 @@ class DataServer(object):
       if self.Address() not in addr:
         return False
     else:
-      if self.Address() != addr:
+      # Handle hostnames and IPs
+      if socket.gethostbyname(self.Address()) != socket.gethostbyname(addr):
         return False
     return self.Port() == port
 
@@ -120,7 +122,7 @@ class DataMaster(object):
     if not self.mapping:
       # Bootstrap mapping.
       # Each server information is linked to its corresponding object.
-      # Updating the data server object will reflect immediatelly on
+      # Updating the data server object will reflect immediately on
       # the mapping.
       for server in self.servers:
         server.SetInitialInterval(len(self.servers))
@@ -273,7 +275,7 @@ class DataMaster(object):
     self.mapping.servers = newserverlist
     self.mapping.num_servers -= 1
     self.servers.pop(removed_server.Index())
-    self.DeregisterSever(removed_server)
+    self.DeregisterServer(removed_server)
     removed_server.Remove()
     return removed_server
 
@@ -385,4 +387,3 @@ class DataMaster(object):
     rebalance.RemoveDirectory(self.rebalance)
     self.CancelRebalancing()
     return self.mapping
-

@@ -16,9 +16,10 @@ class AuthTest(test_lib.GRRBaseTest):
 
   def setUp(self):
     super(AuthTest, self).setUp()
-    config_lib.CONFIG.Set("Dataserver.username", "root")
-    config_lib.CONFIG.Set("Dataserver.password", "root")
-    config_lib.CONFIG.Set("Dataserver.usernames", ["user:rw:user"])
+    config_lib.CONFIG.Set("Dataserver.server_username", "rootuser1")
+    config_lib.CONFIG.Set("Dataserver.server_password", "somelongpasswordaabb")
+    config_lib.CONFIG.Set("Dataserver.client_credentials",
+                          ["rootuser1:somelongpasswordaabb:rw"])
 
   def testNonceStoreSimple(self):
     # Test creation and deletion of nonces.
@@ -75,8 +76,8 @@ class AuthTest(test_lib.GRRBaseTest):
       self.assertEqual(nonce1, store.GetNonce(nonce1))
 
   def testServerCredentials(self):
-    user = config_lib.CONFIG["Dataserver.username"]
-    pwd = config_lib.CONFIG["Dataserver.password"]
+    user = config_lib.CONFIG["Dataserver.server_username"]
+    pwd = config_lib.CONFIG["Dataserver.server_password"]
 
     # Use correct credentials.
     store = auth.NonceStore()
@@ -98,15 +99,15 @@ class AuthTest(test_lib.GRRBaseTest):
     self.assertFalse(store.ValidateAuthTokenServer(token))
 
   def testClientCredentials(self):
-    user = config_lib.CONFIG["Dataserver.username"]
-    pwd = config_lib.CONFIG["Dataserver.password"]
+    user = config_lib.CONFIG["Dataserver.server_username"]
+    pwd = config_lib.CONFIG["Dataserver.server_password"]
 
     # Check credentials.
     creds = auth.ClientCredentials()
     creds.InitializeFromConfig()
-    self.assertTrue(creds.HasUser("user"))
-    self.assertEqual(creds.GetPassword("user"), "user")
-    self.assertEqual(creds.GetPermissions("user"), "rw")
+    self.assertTrue(creds.HasUser(user))
+    self.assertEqual(creds.GetPassword(user), "somelongpasswordaabb")
+    self.assertEqual(creds.GetPermissions(user), "rw")
 
     self.assertFalse(creds.HasUser("user2"))
     self.assertEqual(creds.GetPassword("user2"), None)
@@ -119,16 +120,16 @@ class AuthTest(test_lib.GRRBaseTest):
                      creds2)
 
     # Must have same credentials.
-    self.assertTrue(creds2.HasUser("user"))
-    self.assertEqual(creds2.GetPassword("user"), "user")
-    self.assertEqual(creds2.GetPermissions("user"), "rw")
+    self.assertTrue(creds2.HasUser(user))
+    self.assertEqual(creds2.GetPassword(user), "somelongpasswordaabb")
+    self.assertEqual(creds2.GetPermissions(user), "rw")
 
     # Create new credentials with wrong password.
     creds3 = auth.ClientCredentials()
     self.assertEqual(creds3.InitializeFromEncryption(cipher, user,
                                                      "badpassword"), None)
 
-    self.assertFalse(creds3.HasUser("user"))
+    self.assertFalse(creds3.HasUser(user))
 
 
 def main(args):

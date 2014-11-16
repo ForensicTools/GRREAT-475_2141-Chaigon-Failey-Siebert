@@ -9,6 +9,8 @@ from grr.lib import config_lib
 config_lib.DEFINE_list(
     "Artifacts.artifact_dirs",
     [os.path.normpath(os.path.dirname(__file__) + "/../../grr/artifacts"),
+     os.path.normpath(os.path.dirname(__file__) + "/../../grr/artifacts/"
+                      + "flow_templates"),
      os.path.normpath(os.path.dirname(__file__) + "/../../grr/artifacts/local")
     ], "A list directories to load artifacts from.")
 
@@ -31,7 +33,8 @@ config_lib.DEFINE_list("Artifacts.knowledge_base",
                         "WMIProfileUsersHomeDir",
                         "WMIAccountUsersDomain",
                         "OSXUsers",
-                        "LinuxUserProfiles"],
+                        "LinuxUserProfiles",
+                        "LinuxRelease"],
                        "List of artifacts that are collected regularly by"
                        " interrogate and used for interpolation of client-side"
                        " variables. Includes artifacts for all supported OSes. "

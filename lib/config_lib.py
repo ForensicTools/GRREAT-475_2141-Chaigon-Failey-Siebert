@@ -1269,6 +1269,9 @@ def ParseConfigCommandLine():
   for context in flags.FLAGS.context:
     CONFIG.AddContext(context)
 
+  if CONFIG["Config.writeback"]:
+    CONFIG.SetWriteBack(CONFIG["Config.writeback"])
+
   # Does the user want to dump help? We do this after the config system is
   # initialized so the user can examine what we think the value of all the
   # parameters are.
