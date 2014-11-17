@@ -31,7 +31,6 @@ from grr.lib import queue_manager
 from grr.lib import rdfvalue
 from grr.lib import type_info
 from grr.lib import utils
-from grr.lib.rdfvalues import flows
 from grr.proto import flows_pb2
 
 
@@ -178,7 +177,7 @@ class HuntRunner(flow_runner.FlowRunner):
     if args.client_limit > 1000:
       raise RuntimeError("Please specify client_limit <= 1000.")
 
-    context = flows.DataObject(
+    context = utils.DataObject(
         args=args,
         backtrace=None,
         client_resources=rdfvalue.ClientResources(),
@@ -576,7 +575,7 @@ class GRRHunt(flow.GRRFlow):
 
     # Is the required flow a known flow?
     if (runner_args.hunt_name not in cls.classes and
-        not aff4.issubclass(GRRHunt, cls.classes[runner_args.hunt_name])):
+        not aff4.issubclass(cls.classes[runner_args.hunt_name], GRRHunt)):
       raise RuntimeError("Unable to locate hunt %s" % runner_args.hunt_name)
 
     # Make a new hunt object and initialize its runner.
@@ -953,7 +952,8 @@ class GRRHunt(flow.GRRFlow):
         self.completed_clients_collection_urn))
     outstanding = started - completed
 
-    return {"COMPLETED": sorted(completed),
+    return {"STARTED": sorted(started),
+            "COMPLETED": sorted(completed),
             "OUTSTANDING": sorted(outstanding)}
 
   def GetClientStates(self, client_list, client_chunk=50):

@@ -48,7 +48,13 @@ grr.labels_completer.Completer = function(dom_id, completions, split_term) {
           response(grr.labels_completer.filter(completions, terms.pop()));
         }
       } else {
-        response(grr.labels_completer.filter(completions, request.term));
+        terms = grr.labels_completer.filter(completions, request.term);
+        if ($.inArray(request.term, terms) != -1) {
+          response([]);
+        }
+        else {
+          response(terms);
+        }
       }
     },
     focus: function() {
@@ -69,17 +75,11 @@ grr.labels_completer.Completer = function(dom_id, completions, split_term) {
         grr.forms.inputOnChange(this);
         return false;
       } else {
-        return false;
+        return true;
       }
     }
-  }).wrap('<abbr title="Type label: to open a list of possible ' +
-      'labels completions."/>');
+  });
 };
-
-grr.Renderer('GlobExpressionFormRenderer', {
-  Layout: function(state) {
-  }
-});
 
 
 grr.Renderer('ContentView', {
@@ -208,13 +208,13 @@ grr.Renderer('HostTable', {
     }, unique);
 
     // Apply Label renderer
-    $('#apply_label_dialog_' + unique).on('show', function(event) {
+    $('#apply_label_dialog_' + unique).on('show.bs.modal', function(event) {
       if (event.target != this) return;
 
       grr.layout('ApplyLabelToClientsDialog',
                  'apply_label_dialog_' + unique,
                  {'selected_clients': JSON.stringify(selectedClients)});
-    }).on('hidden', function(event) {
+    }).on('hidden.bs.modal', function(event) {
       // Only refresh the view is labels were updated.
       if ($(this).data('updated')) {
         grr.layout('HostTable', 'main', {q: grr.hash['q']});

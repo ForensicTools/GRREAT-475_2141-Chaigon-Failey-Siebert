@@ -12,17 +12,23 @@ import sys
 import time
 import unittest
 
+import psutil
+
 # pylint: disable=unused-import,g-bad-import-order
 from grr.lib import server_plugins
 from grr.client import tests
 # pylint: enable=unused-import,g-bad-import-order
 
-# These need to register plugins so, pylint: disable=unused-import
+# These need to register plugins so, pylint: disable=unused-import,g-bad-import-order
+from grr.gui.api_plugins import tests
+from grr.gui import api_renderers_test
+from grr.gui import api_object_renderers_test
 from grr.lib import flags
 from grr.lib import test_lib
 from grr.lib import tests
 from grr.lib import utils
 from grr.parsers import tests
+from grr.server.data_server import tests
 from grr.tools.export_plugins import tests
 from grr.worker import worker_test
 
@@ -30,7 +36,7 @@ from grr.worker import worker_test
 flags.DEFINE_string("output", None,
                     "The name of the file we write on (default stderr).")
 
-flags.DEFINE_integer("processes", 5,
+flags.DEFINE_integer("processes", 0,
                      "Total number of simultaneous tests to run.")
 
 
@@ -200,8 +206,11 @@ def main(argv=None):
                                start=time.time(), output_path=result_filename,
                                test=name)
 
+        max_processes = flags.FLAGS.processes
+        if not max_processes:
+          max_processes = max(psutil.cpu_count() - 1, 1)
         WaitForAvailableProcesses(
-            processes, max_processes=flags.FLAGS.processes,
+            processes, max_processes=max_processes,
             completion_cb=ReportTestResult)
 
       # Wait for all jobs to finish.

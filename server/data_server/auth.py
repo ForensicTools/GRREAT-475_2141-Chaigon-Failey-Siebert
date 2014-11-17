@@ -30,15 +30,16 @@ class ClientCredentials(object):
     self.client_users = {}
 
   def InitializeFromConfig(self):
-    usernames = config_lib.CONFIG.Get("Dataserver.usernames")
+    usernames = config_lib.CONFIG.Get("Dataserver.client_credentials")
     self.client_users = {}
     for user_spec in usernames:
       try:
-        user, perm, pwd = user_spec.split(":", 2)
+        user, pwd, perm = user_spec.split(":", 2)
         self.client_users[user] = (perm, pwd)
       except ValueError:
-        raise errors.DataServerError("User %s from Dataserver.usernames is not"
-                                     " a valid specification" % user_spec)
+        raise errors.DataServerError(
+            "User %s from Dataserver.client_credentials is not"
+            " a valid specification" % user_spec)
 
   def _MakeEncryptKey(self, username, password):
     data = hashlib.md5(username + password).hexdigest()
@@ -62,6 +63,7 @@ class ClientCredentials(object):
     key = self._MakeEncryptKey(username, password)
     # We encrypt the credentials object.
     string = creds.SerializeToString()
+
     if len(string) % 16:
       string += " " * (16 - len(string) % 16)  # Must be in 16 byte blocks.
     init_vector = self._MakeInitVector()
@@ -86,6 +88,10 @@ class ClientCredentials(object):
     try:
       plain = decryptor.Update(ciphertext)
       plain += decryptor.Final()
+
+      # Remove padding
+      plain = plain.strip(" ")
+
       creds = rdfvalue.DataServerClientCredentials(plain)
       # Create client credentials.
       self.client_users = {}
@@ -131,12 +137,12 @@ class NonceStore(object):
     self.nonces = {}
     self.lock = threading.Lock()
     # Data server credentials.
-    self.server_username = config_lib.CONFIG.Get("Dataserver.username")
-    self.server_password = config_lib.CONFIG.Get("Dataserver.password")
+    self.server_username = config_lib.CONFIG.Get("Dataserver.server_username")
+    self.server_password = config_lib.CONFIG.Get("Dataserver.server_password")
     if not self.server_username:
-      raise errors.DataServerError("Dataserver.username not provided")
+      raise errors.DataServerError("Dataserver.server_username not provided")
     if not self.server_password:
-      raise errors.DataServerError("Dataserver.password not provided")
+      raise errors.DataServerError("Dataserver.server_password not provided")
     # Client credentials.
     self.client_creds = None
 
@@ -241,4 +247,3 @@ def GenerateAuthToken(nonce, username, password):
   """Generate a new token based on the nonce and username/password."""
   hsh = _GenerateAuthHash(nonce, username, password)
   return nonce + hsh + username
-

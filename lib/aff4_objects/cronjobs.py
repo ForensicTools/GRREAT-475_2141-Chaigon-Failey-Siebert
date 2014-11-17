@@ -21,16 +21,6 @@ from grr.lib import utils
 from grr.proto import flows_pb2
 
 
-config_lib.DEFINE_list("Cron.enabled_system_jobs", [],
-                       "List of system cron jobs that will be "
-                       "automatically scheduled on worker startup. "
-                       "If cron jobs from this list were disabled "
-                       "before, they will be enabled on worker "
-                       "startup. Vice versa, if they were enabled "
-                       "but are not specified in the list, they "
-                       "will be disabled.")
-
-
 class Error(Exception):
   pass
 
@@ -159,6 +149,11 @@ class SystemCronFlow(flow.GRRFlow):
   lifetime = rdfvalue.Duration("20h")
 
   __abstract = True  # pylint: disable=g-bad-name
+
+  def WriteState(self):
+    if "w" in self.mode:
+      # For normal flows it's a bug to write an empty state, here it's ok.
+      self.Set(self.Schema.FLOW_STATE(self.state))
 
 
 class StateReadError(Error):

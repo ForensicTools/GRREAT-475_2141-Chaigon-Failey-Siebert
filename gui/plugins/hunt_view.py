@@ -10,10 +10,9 @@ import StringIO
 import urllib
 
 
-import matplotlib.pyplot as plt
-
 import logging
 
+from grr.gui import plot_lib
 from grr.gui import renderers
 from grr.gui.plugins import crash_view
 from grr.gui.plugins import fileview
@@ -180,26 +179,26 @@ class HuntTable(fileview.AbstractFileTable):
   custom_class = "HuntTable"
   layout_template = """
 <div id="new_hunt_dialog_{{unique|escape}}"
-  class="modal wide-modal high-modal hide" update_on_show="true"
+  class="modal wide-modal high-modal" update_on_show="true"
   tabindex="-1" role="dialog" aria-hidden="true">
 </div>
 
 <div id="run_hunt_dialog_{{unique|escape}}"
-  class="modal hide" tabindex="-1" role="dialog" aria-hidden="true">
+  class="modal" tabindex="-1" role="dialog" aria-hidden="true">
 </div>
 
 <div id="pause_hunt_dialog_{{unique|escape}}"
-  class="modal hide" tabindex="-1" role="dialog" aria-hidden="true">
+  class="modal" tabindex="-1" role="dialog" aria-hidden="true">
 </div>
 
 <div id="modify_hunt_dialog_{{unique|escape}}"
-  class="modal hide" tabindex="-1" role="dialog" aria-hidden="true">
+  class="modal" tabindex="-1" role="dialog" aria-hidden="true">
 </div>
 
 <ul class="breadcrumb">
   <li>
   <button id='new_hunt_{{unique|escape}}' title='New Hunt'
-    class="btn" name="NewHunt" data-toggle="modal"
+    class="btn btn-default" name="NewHunt" data-toggle="modal"
     data-target="#new_hunt_dialog_{{unique|escape}}">
     <img src='/static/images/new.png' class='toolbar_icon'>
   </button>
@@ -207,26 +206,26 @@ class HuntTable(fileview.AbstractFileTable):
   <div class="btn-group">
 
   <button id='run_hunt_{{unique|escape}}' title='Run Hunt'
-    class="btn" disabled="yes" name="RunHunt" data-toggle="modal"
+    class="btn btn-default" disabled="yes" name="RunHunt" data-toggle="modal"
     data-target="#run_hunt_dialog_{{unique|escape}}">
     <img src='/static/images/play_button.png' class='toolbar_icon'>
   </button>
 
   <button id='pause_hunt_{{unique|escape}}' title='Pause Hunt'
-    class="btn" disabled="yes" name="PauseHunt" data-toggle="modal"
+    class="btn btn-default" disabled="yes" name="PauseHunt" data-toggle="modal"
     data-target="#pause_hunt_dialog_{{unique|escape}}">
     <img src='/static/images/pause_button.png' class='toolbar_icon'>
   </button>
 
   <button id='modify_hunt_{{unique|escape}}' title='Modify Hunt'
-    class="btn" disabled="yes" name="ModifyHunt" data-toggle="modal"
+    class="btn btn-default" disabled="yes" name="ModifyHunt" data-toggle="modal"
     data-target="#modify_hunt_dialog_{{unique|escape}}">
     <img src='/static/images/modify.png' class='toolbar_icon'>
   </button>
 
   <button id='toggle_robot_hunt_display_{{unique|escape}}'
     title='Show/Hide Automated hunts'
-    class="btn" name="ToggleRobotHuntDisplay">
+    class="btn btn-default" name="ToggleRobotHuntDisplay">
     <img src='/static/images/robot.png' class='toolbar_icon'>
   </button>
 
@@ -827,7 +826,7 @@ class HuntClientCompletionGraphRenderer(renderers.ImageDownloadRenderer):
     hunt = aff4.FACTORY.Open(hunt_id, aff4_type="GRRHunt", token=request.token)
     clients_by_status = hunt.GetClientsByStatus()
 
-    cl = clients_by_status["COMPLETED"] + clients_by_status["OUTSTANDING"]
+    cl = clients_by_status["STARTED"]
     fi = clients_by_status["COMPLETED"]
 
     cdict = {}
@@ -880,19 +879,19 @@ class HuntClientCompletionGraphRenderer(renderers.ImageDownloadRenderer):
 
     params = {"backend": "png"}
 
-    plt.rcParams.update(params)
-    plt.figure(1)
-    plt.clf()
+    plot_lib.plt.rcParams.update(params)
+    plot_lib.plt.figure(1)
+    plot_lib.plt.clf()
 
-    plt.plot(times, cl, label="Agents issued.")
-    plt.plot(times, fi, label="Agents completed.")
-    plt.title("Agent Coverage")
-    plt.xlabel("Time (h)")
-    plt.ylabel(r"Agents")
-    plt.grid(True)
-    plt.legend(loc=4)
+    plot_lib.plt.plot(times, cl, label="Agents issued.")
+    plot_lib.plt.plot(times, fi, label="Agents completed.")
+    plot_lib.plt.title("Agent Coverage")
+    plot_lib.plt.xlabel("Time (h)")
+    plot_lib.plt.ylabel(r"Agents")
+    plot_lib.plt.grid(True)
+    plot_lib.plt.legend(loc=4)
     buf = StringIO.StringIO()
-    plt.savefig(buf)
+    plot_lib.plt.savefig(buf)
     buf.seek(0)
 
     return buf.read()
@@ -977,10 +976,10 @@ class HuntResultsRenderer(semantic.RDFValueCollectionRenderer):
 
     Results of this hunt can be downloaded as an archive:&nbsp;
     <div class="btn-group">
-      <button name="generate_tar" class="btn DownloadButton">
+      <button name="generate_tar" class="btn btn-default DownloadButton">
         Generate TAR.GZ
       </button>
-      <button class="btn dropdown-toggle" data-toggle="dropdown">
+      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
@@ -993,10 +992,10 @@ class HuntResultsRenderer(semantic.RDFValueCollectionRenderer):
 
     Results of this hunt can be downloaded as an archive:&nbsp;
     <div class="btn-group">
-      <button class="btn DownloadButton" name="generate_zip">
+      <button class="btn btn-default DownloadButton" name="generate_zip">
         Generate ZIP
       </button>
-      <button class="btn dropdown-toggle" data-toggle="dropdown">
+      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
@@ -1134,7 +1133,7 @@ class HuntStatsRenderer(renderers.TemplateRenderer):
 
 <h3>Worst performers</h3>
 <div class="row">
-<div class="span8">
+<div class="col-md-8">
 <table id="performers_{{unique|escape}}"
   class="table table-condensed table-striped table-bordered">
   <thead>
@@ -1146,7 +1145,7 @@ class HuntStatsRenderer(renderers.TemplateRenderer):
   <tbody>
   {% for r in this.stats.worst_performers %}
     <tr>
-      <td><a client_id="{{r.client_id|escape}}">{{r.client_id|escape}}</a></td>
+      <td>{{r.client_html|safe}}</td>
       <td>{{r.cpu_usage.user_cpu_time|floatformat}}</td>
       <td>{{r.cpu_usage.system_cpu_time|floatformat}}</td>
       <td>{{r.network_bytes_sent|escape}}</td>
@@ -1177,6 +1176,9 @@ class HuntStatsRenderer(renderers.TemplateRenderer):
           raise IOError("No valid state could be found.")
 
         self.stats = hunt.state.context.usage_stats
+        for item in self.stats.worst_performers:
+          renderer = semantic.FindRendererForObject(item.client_id)
+          item.client_html = renderer.RawHTML()
 
         self.user_cpu_json_data = self._HistogramToJSON(
             self.stats.user_cpu_stats.histogram)

@@ -82,8 +82,8 @@ grr.Renderer('EmbeddedProtoFormRenderer', {
     $('#' + state.unique).click(function() {
       var jthis = $(this);
 
-      if (jthis.hasClass('icon-plus')) {
-        jthis.removeClass('icon-plus').addClass('icon-minus');
+      if (jthis.hasClass('glyphicon-plus')) {
+        jthis.removeClass('glyphicon-plus').addClass('glyphicon-minus');
 
         var jcontent = $('#content_' + state.unique);
 
@@ -95,7 +95,7 @@ grr.Renderer('EmbeddedProtoFormRenderer', {
         jcontent.show();
       } else {
         // Flip the opener and remove the form.
-        jthis.removeClass('icon-minus').addClass('icon-plus');
+        jthis.removeClass('glyphicon-minus').addClass('glyphicon-plus');
         $('#content_' + state.unique).hide();
       }
     });
@@ -231,11 +231,6 @@ grr.Renderer('MultiFormRenderer', {
       var new_div = $('<div class="alert fade in" id="' +
           new_id + '" data-item="' + count + '" >');
 
-      new_div.on('close', function() {
-        var item = $(this).data('item');
-        grr.forms.clearPrefix(this, option + '_' + item);
-      });
-
       new_div.insertBefore(this);
 
       grr.layout(state.renderer, new_id, data);
@@ -249,6 +244,18 @@ grr.Renderer('MultiFormRenderer', {
       // click it to make at least one option available.
       addButton.click();
     }
+  },
+
+  LayoutItem: function(state) {
+    var unique = state.unique;
+    var option = state.option || 'option';
+
+    // This button is pressed when current form is removed.
+    var removeButton = $('#RemoveButton' + unique);
+    removeButton.click(function() {
+      var item = $(this).parent().data('item');
+      grr.forms.clearPrefix(this, option + '_' + item);
+    });
   }
 });
 
@@ -258,13 +265,20 @@ grr.Renderer('SemanticProtoFormRenderer', {
     var unique = state.unique;
 
     $('#advanced_label_' + unique).click(function() {
-      $('#advanced_controls_' + unique).toggle();
+      var advancedControls = $('#advanced_controls_' + unique);
+      if (advancedControls.hasClass('hide')) {
+        advancedControls.removeClass('hide');
+      } else {
+        advancedControls.addClass('hide');
+      }
 
       var icon = $('#' + unique + ' .advanced-icon:last');
       if ($('#advanced_controls_' + unique).is(':visible')) {
-        icon.removeClass('icon-chevron-right').addClass('icon-chevron-down');
+        icon.removeClass('glyphicon-chevron-right').addClass(
+            'glyphicon-chevron-down');
       } else {
-        icon.removeClass('icon-chevron-down').addClass('icon-chevron-right');
+        icon.removeClass('glyphicon-chevron-down').addClass(
+            'glyphicon-chevron-right');
       }
     });
 

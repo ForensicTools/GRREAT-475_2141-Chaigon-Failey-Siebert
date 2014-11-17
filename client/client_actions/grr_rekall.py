@@ -103,6 +103,9 @@ class GRRRekallRenderer(data_export.DataExportRenderer):
     # The current plugin we are running.
     self.plugin = None
 
+    self.context_messages = {}
+    self.new_context_messages = {}
+
   def start(self, plugin_name=None, kwargs=None):
     self.plugin = plugin_name
     return super(GRRRekallRenderer, self).start(plugin_name=plugin_name,
@@ -113,7 +116,12 @@ class GRRRekallRenderer(data_export.DataExportRenderer):
     if self.data:
       response_msg = rdfvalue.RekallResponse(
           json_messages=json.dumps(self.data, separators=(",", ":")),
+          json_context_messages=json.dumps(self.context_messages.items(),
+                                           separators=(",", ":")),
           plugin=self.plugin)
+
+      self.context_messages = self.new_context_messages
+      self.new_context_messages = {}
 
       # Queue the response to the server.
       self.action.SendReply(response_msg)
@@ -121,11 +129,22 @@ class GRRRekallRenderer(data_export.DataExportRenderer):
   def SendMessage(self, statement):
     super(GRRRekallRenderer, self).SendMessage(statement)
 
+    if statement[0] in ["s", "t"]:
+      self.new_context_messages[statement[0]] = statement[1]
+
     if len(self.data) > self.RESPONSE_CHUNK_SIZE:
       self.flush()
 
   def open(self, directory=None, filename=None, mode="rb"):
-    return tempfiles.CreateGRRTempFile(filename=filename, mode=mode)
+    result = tempfiles.CreateGRRTempFile(filename=filename, mode=mode)
+    # The tempfile library created an os path, we pass it through vfs to
+    # normalize it.
+    with vfs.VFSOpen(rdfvalue.PathSpec(
+        path=result.name,
+        pathtype=rdfvalue.PathSpec.PathType.OS)) as vfs_fd:
+      dict_pathspec = vfs_fd.pathspec.ToPrimitiveDict()
+      self.SendMessage(["file", dict_pathspec])
+    return result
 
   def report_error(self, message):
     super(GRRRekallRenderer, self).report_error(message)
@@ -210,6 +229,8 @@ class RekallAction(actions.SuspendableAction):
       if "profile_path" not in session_args:
         session_args["profile_path"] = [config_lib.CONFIG[
             "Client.rekall_profile_cache_path"]]
+
+      session_args.update(fhandle.GetMetadata())
 
       rekal_session = GrrRekallSession(action=self, **session_args)
 

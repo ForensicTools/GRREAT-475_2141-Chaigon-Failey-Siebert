@@ -10,6 +10,7 @@ from grr.lib import action_mocks
 from grr.lib import aff4
 from grr.lib import artifact_test
 from grr.lib import config_lib
+from grr.lib import flags
 from grr.lib import flow
 from grr.lib import rdfvalue
 from grr.lib import search
@@ -30,7 +31,7 @@ class DiscoveryTestEventListener(flow.EventListener):
     DiscoveryTestEventListener.event = event
 
 
-class TestClientInterrogate(artifact_test.ArtifactTestHelper):
+class TestClientInterrogate(artifact_test.ArtifactTest):
   """Test the interrogate flow."""
 
   def _CheckUsers(self, all_users):
@@ -84,7 +85,7 @@ class TestClientInterrogate(artifact_test.ArtifactTestHelper):
 
     self.assertEqual(notification.subject, rdfvalue.RDFURN(self.client_id))
 
-  def _CheckClientSummary(self, osname, version):
+  def _CheckClientSummary(self, osname, version, release="5"):
     summary = self.fd.Get(self.fd.Schema.SUMMARY)
     self.assertEqual(summary.client_info.client_name,
                      config_lib.CONFIG["Client.name"])
@@ -95,7 +96,7 @@ class TestClientInterrogate(artifact_test.ArtifactTestHelper):
 
     self.assertEqual(summary.system_info.system, osname)
     self.assertEqual(summary.system_info.node, "test_node")
-    self.assertEqual(summary.system_info.release, "5")
+    self.assertEqual(summary.system_info.release, release)
     self.assertEqual(summary.system_info.version, version)
     self.assertEqual(summary.system_info.machine, "i386")
 
@@ -166,6 +167,16 @@ class TestClientInterrogate(artifact_test.ArtifactTestHelper):
     self.assertEqual(pathspec.CollapsePath(),
                      u"/HKEY_LOCAL_MACHINE/random/path/bla")
 
+  def _CheckRelease(self, desired_release, desired_version):
+    # Test for correct Linux release override behaviour.
+
+    client = aff4.FACTORY.Open(self.client_id, token=self.token)
+    release = str(client.Get(client.Schema.OS_RELEASE))
+    version = str(client.Get(client.Schema.OS_VERSION))
+
+    self.assertEqual(release, desired_release)
+    self.assertEqual(version, desired_version)
+
   def testInterrogateLinuxWithWtmp(self):
     """Test the Interrogate flow."""
     test_lib.ClientFixture(self.client_id, token=self.token)
@@ -174,7 +185,8 @@ class TestClientInterrogate(artifact_test.ArtifactTestHelper):
         rdfvalue.PathSpec.PathType.OS] = test_lib.FakeTestDataVFSHandler
 
     config_lib.CONFIG.Set("Artifacts.knowledge_base", ["LinuxWtmp",
-                                                       "NetgroupConfiguration"])
+                                                       "NetgroupConfiguration",
+                                                       "LinuxRelease"])
     config_lib.CONFIG.Set("Artifacts.netgroup_filter_regexes", [r"^login$"])
     self.SetLinuxClient()
     client_mock = action_mocks.InterrogatedClient("TransferBuffer", "StatFile",
@@ -194,7 +206,8 @@ class TestClientInterrogate(artifact_test.ArtifactTestHelper):
     self._CheckClientIndex(".*test.*")
     self._CheckGRRConfig()
     self._CheckNotificationsCreated()
-    self._CheckClientSummary("Linux", "12.04")
+    self._CheckClientSummary("Linux", "14.4", "Ubuntu")
+    self._CheckRelease("Ubuntu", "14.4")
 
     # users 1,2,3 from wtmp
     # users yagharek, isaac from netgroup
@@ -244,3 +257,15 @@ class TestClientInterrogate(artifact_test.ArtifactTestHelper):
     self._CheckLabelIndex()
     self._CheckWindowsDiskInfo()
     self._CheckRegistryPathspec()
+
+
+class FlowTestLoader(test_lib.GRRTestLoader):
+  base_class = TestClientInterrogate
+
+
+def main(argv):
+  # Run the full test suite
+  test_lib.GrrTestProgram(argv=argv, testLoader=FlowTestLoader())
+
+if __name__ == "__main__":
+  flags.StartMain(main)
