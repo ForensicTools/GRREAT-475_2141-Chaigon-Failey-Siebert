@@ -3,6 +3,7 @@ import ssdeep
 import os
 import sys
 import math
+import argparse
 
 SPAMSUM_LENGTH = 64
 
@@ -87,8 +88,11 @@ def search_by_hash(directory, ref_hash):
 
 
 if __name__ == "__main__":
-	directory = sys.argv[1]
-	ref_hash = sys.argv[2]
-	matches = search_by_hash(directory, ref_hash)
+	parser = argparse.ArgumentParser(description="Find files using ssdeep piecewise hashes.")
+	parser.add_argument("directory", help="The directory to search in.", type=str)
+	parser.add_argument("hash", help="Piecewise hash from ssdeep.", type=str)
+	args = parser.parse_args()
+
+	matches = search_by_hash(args.directory, args.hash)
 	for match in matches:
 		print("%d - %s" % (match[1], match[0]))
