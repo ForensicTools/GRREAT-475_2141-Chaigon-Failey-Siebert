@@ -87,12 +87,41 @@ def search_by_hash(directory, ref_hash):
 	return matches
 
 
+"""Searches for a file by its ssdeep hash.
+
+Args:
+	directory: The directory where to search.
+	ref_hash: The ssdeep hash to search for.
+
+Returns:
+	The matches as a Python array.
+	The array contains the filepath and the ssdeep score.
+"""
+def search_by_hash_partial_matches(directory, ref_hash):
+	matches = []
+	for root, dirs, filenames in os.walk(directory):
+		for filename in filenames:
+			filepath = os.path.join(root, filename)
+			if os.path.isfile(filepath):
+				piecewise_hash = ssdeep.hash_from_file(filepath.decode('utf-8'))
+				ssdeep_score = ssdeep.compare(ref_hash, piecewise_hash)
+				if ssdeep_score > 0:
+					matches.append((filepath, ssdeep_score))
+	return matches
+
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Find files using ssdeep piecewise hashes.")
 	parser.add_argument("directory", help="The directory to search in.", type=str)
 	parser.add_argument("hash", help="Piecewise hash from ssdeep.", type=str)
+	parser.add_argument("-p", "--partial-matches", dest="partial_matches", action="store_true",
+						help="Include partial matches in the results.")
 	args = parser.parse_args()
 
-	matches = search_by_hash(args.directory, args.hash)
+	matches = []
+	if args.partial_matches:
+		matches = search_by_hash_partial_matches(args.directory, args.hash)
+	else:
+		matches = search_by_hash(args.directory, args.hash)
 	for match in matches:
 		print("%d - %s" % (match[1], match[0]))
