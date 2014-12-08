@@ -79,9 +79,9 @@ def compute_filesize_approximations(hashes):
 
 From the implementation of ssdeep we know that:
 blocksize = min_blocksize * 2 ^ bi.
-bi is the smallest integer such that blocksize > filesize.
+bi is the smallest integer such that SPAMSUM_LENGTH * blocksize > filesize.
 From this we can deduce that:
-min_blocksize * 2 ^ (bi - 1) < filesize <= min_blocksize * 2 ^ bi.
+SPAMSUM_LENGTH * blocksize/2 < filesize <= SPAMSUM_LENGTH * blocksize.
 
 Args:
 	blocksize: The ssdeep blocksize.
