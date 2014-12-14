@@ -18,7 +18,7 @@ Download GRREAT and unpack it.
 ### Find a file by its hash
 The script will search for a file in the directory given by its hash.
 ```
-$ python find_by_hash.py -h  /path/to/directory
+$ python find_by_hash.py --hash 3072:kHgV03h5APOMmBO/NbkYgx7LQwHBPf+5sQfTwFTgiiTiuiCJWJXCQJd:kHgV0MiBO/VIx/dhPfCsjFTXUiuiL /path/to/directory
 97 - /path/to/directory/test_altered.jpg
 100 - /path/to/directory/test_original.jpg
 ```
