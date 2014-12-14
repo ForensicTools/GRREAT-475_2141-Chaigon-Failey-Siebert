@@ -1,10 +1,16 @@
 #!/usr/bin/env python
-import ssdeep
 import os
 import sys
 import math
 import argparse
 import sets
+import platform
+
+# Uses libfuzzy for Unix, pyssdeep for Windows:
+if platform.system() == 'Windows':
+	import pyssdeep as ssdeep
+else:
+	import ssdeep
 
 SPAMSUM_LENGTH = 64
 
