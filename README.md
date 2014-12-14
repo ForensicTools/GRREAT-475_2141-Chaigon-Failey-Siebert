@@ -9,8 +9,8 @@ The user could later hash the contents again to determine what has been changed 
 
 ### Using GRREAT
 In order to utilize this tool, the user will need to download and install a few dependancies. 
--[Python 2.7](https://www.python.org/downloads/release/python-279/)
--[SSDeep](https://pypi.python.org/pypi/ssdeep)
+[Python 2.7](https://www.python.org/downloads/release/python-279/)
+[SSDeep](https://pypi.python.org/pypi/ssdeep)
 
 
 ### GRR
