@@ -7,6 +7,11 @@ The user could later hash the contents again to determine what has been changed 
 
 [The discussion for the integration of this feature in GRR](https://groups.google.com/forum/#!topic/grr-dev/VB13CEzVukE) is on the dev forum.
 
+### Using GRREAT
+In order to utilize this tool, the user will need to download and install a few dependancies: 
+- [Python 2.7](https://www.python.org/downloads/release/python-279/)
+- [SSDeep](https://pypi.python.org/pypi/ssdeep)
+
 
 ### GRR
 [GRR](https://github.com/google/grr) (for GRR Rapid Response) is an incident response framework focused on remote live forensics.
